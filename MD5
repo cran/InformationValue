@@ -1,6 +1,8 @@
-6c0eb8c2878680a2ac2e32a42a6431e0 *DESCRIPTION
-20e1eba7737fd4267c510f4e7313375c *NAMESPACE
-f28976da13a054f6577bb1f97a602af0 *R/Main.R
+b226f7eb92a06b0098b20834a35b3918 *DESCRIPTION
+e405a2a7ac3706bb9a833a553c0ab963 *NAMESPACE
+8afbbe25acdf7ee78dadec315f671997 *R/Main.R
+0e8b8e3966358c39812db40b7563def2 *R/StandAloneFuncs.R
+0676492bafeb21497ae66cd7e4ef5c19 *README.md
 9d174e8a7d926fba0b55fa3032dcb977 *data/ActualsAndScores.RData
 9d6173b1d8db943defc7bdde3248a0cf *data/SimData.RData
 edca7addfb9e594e0ad7a96cfadfd602 *man/AUROC.Rd
@@ -12,7 +14,8 @@ a868b8cdc4b2030d3cdecbd730f6b73a *man/IV.Rd
 6d2bf7c834cfca62114d488d30b5064a *man/WOETable.Rd
 4e1238a51480454d278183302aaa3007 *man/confusionMatrix.Rd
 08e10abaf917896034eb33061be2241a *man/kappaCohen.Rd
-4e3230b376be99a1695ce05584a05e11 *man/misClassError.Rd
+e9ca5369ce3987c3a46910bf8a9e833a *man/misClassError.Rd
+d882a18e868045f04c1962b9a6117ed5 *man/optimalCutoff.Rd
 90ba600c98a76c7ae3a1f7dbf84ca582 *man/plotROC.Rd
 466201ebe00773dadc718ab52cee9310 *man/sensitivity.Rd
 db1b42b290a36b1d89ca3b361d2ed386 *man/somersD.Rd

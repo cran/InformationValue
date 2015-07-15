@@ -57,7 +57,7 @@ somersD <- function(actuals, predictedScores){
 
 # Misclassification Error
 #' @title misClassError
-#' @description Calculate the percentage misclassification error for this logit model's fitted values.
+#' @description Calculate the percentage misclassification error for the given actuals and probaility scores.
 #' @details For a given binary response actuals and predicted probability scores, misclassfication error is the number of mismatches between the predicted and actuals direction of the binary y variable.
 #' @author Selva Prabhakaran \email{selva86@@gmail.com}
 #' @export misClassError
@@ -324,21 +324,21 @@ plotROC <- function(actuals, predictedScores, Show.labels=F, returnSensitivityMa
 
   # If Show.labels is TRUE, then display the labels.
   if(!Show.labels){
-    bp + geom_ribbon(color="#3399FF", fill="#3399FF", aes(ymin=0, ymax=sensitivity)) +
+    print(bp + geom_ribbon(color="#3399FF", fill="#3399FF", aes(ymin=0, ymax=sensitivity)) +
       labs(title="ROC Curve", x="1-Specificity", y="Sensitivity") +
       annotate("text", label=paste("AUROC:", round(AREAROC, 4)), x=0.55, y=0.35, colour="white", size=8) +
       theme(legend.position="none",
             plot.title=element_text(size=20, colour = "steelblue"),
             axis.title.x=element_text(size=15, colour = "steelblue"),
-            axis.title.y=element_text(size=15, colour = "steelblue"))
+            axis.title.y=element_text(size=15, colour = "steelblue")))
   } else {
-    bp + geom_ribbon(color="#3399FF", fill="#3399FF", aes(ymin=0, ymax=sensitivity)) +
+    print(bp + geom_ribbon(color="#3399FF", fill="#3399FF", aes(ymin=0, ymax=sensitivity)) +
       labs(title="ROC Curve", x="1-Specificity", y="Sensitivity") +
       annotate("text", label=paste("AUROC:", round(AREAROC, 4)), x=0.55, y=0.35, colour="white", size=8) +
       theme(legend.position="none",
             plot.title=element_text(size=20, colour = "steelblue"),
             axis.title.x=element_text(size=15, colour = "steelblue"),
-            axis.title.y=element_text(size=15, colour = "steelblue")) +  geom_text(aes(size=0.1))
+            axis.title.y=element_text(size=15, colour = "steelblue")) +  geom_text(aes(size=0.1)))
   }
 
   if(returnSensitivityMat){
@@ -491,4 +491,61 @@ IV <- function(X, Y, valueOfGood=1){
     attr(iv, "howgood") <- "Highly Predictive"
   }
   return(iv)  # lookup corresponding value of WOE for each X in woeTable
+}
+
+# OptimiseProbScores
+#' @title optimalCutoff
+#' @description Compute the optimal probability cutoff score, based on a user defined objective.
+#' @details Compute the optimal probability cutoff score for a given set of actuals and predicted probability scores, based on a user defined objective, which is specified by optimiseFor = "Ones" or "Zeros" or "Both" (default).
+#' @author Selva Prabhakaran \email{selva86@@gmail.com}
+#' @export optimalCutoff
+#' @param actuals The actual binary flags for the response variable. It can take a numeric vector containing values of either 1 or 0, where 1 represents the 'Good' or 'Events' while 0 represents 'Bad' or 'Non-Events'.
+#' @param predictedScores The prediction probability scores for each observation. If your classification model gives the 1/0 predcitions, convert it to a numeric vector of 1's and 0's.
+#' @param optimiseFor The maximization criterion for which probability cutoff score needs to be optimised. Can take either of following values: "Ones" or "Zeros" or "Both" (default). If "Ones" is used, 'optimalCutoff' will be chosen to maximise detection of "One's". If 'Both' is specified, the probability cut-off that gives maximum Youden's Index is chosen.
+#' @param returnDiagnostics If TRUE, would return additional diagnostics such as 'sensitivityTable', 'misclassificationError', 'TPR', 'FPR' and 'specificity' for the chosen cut-off.
+#' @return The optimal probability score cutoff that maximises a given criterion. If 'returnDiagnostics' is TRUE, then the following items are returned in a list:
+#' \itemize{
+#'   \item optimalCutoff The optimal probability score cutoff that maximises a given criterion.
+#'   \item sensitivityTable The dataframe that shows the TPR, FPR, Youden's Index and Specificity for variaous values of purbability cut-off scores.
+#'   \item misclassificationError The percentage misclassification error for the given actuals and probaility scores.
+#'   \item TPR The 'True Positive Rate' (a.k.a 'sensitivity')for the chosen probability cut-off score.
+#'   \item FPR The 'False Positive Rate' (a.k.a 'sensitivity')for the chosen probability cut-off score.
+#'   \item Specificity The specificity of the given actuals and probability scores, i.e. the ratio of number of observations without the event AND predicted to not have the event divided by the number of observations without the event.
+#' }
+#' @examples
+#' data('ActualsAndScores')
+#' optimalCutoff(actuals=ActualsAndScores$Actuals,
+#' predictedScores=ActualsAndScores$PredictedScores, optimiseFor="Both", returnDiagnostics=TRUE)
+optimalCutoff <- function(actuals, predictedScores, optimiseFor="Both", returnDiagnostics=FALSE){
+  # initialise the diagnostics dataframe to study the effect of various cutoff values.
+  sequence <- seq(max(predictedScores), min(predictedScores), -0.01)
+  sensMat <- data.frame(CUTOFF=sequence, FPR= numeric(length(sequence)),TPR= numeric(length(sequence)), YOUDENSINDEX=numeric(length(sequence)))
+  sensMat[, c(2:3)] <- as.data.frame(t(mapply(getFprTpr, threshold=sequence, MoreArgs=list(actuals=actuals, predictedScores=predictedScores))))
+  sensMat$YOUDENSINDEX <- mapply(youdensIndex, threshold=sequence, MoreArgs=list(actuals=actuals, predictedScores=predictedScores))
+  sensMat$SPECIFICITY <- (1 - as.numeric(sensMat$FPR))
+  sensMat$MISCLASSERROR <- mapply(misClassError, threshold=sequence, MoreArgs=list(actuals=actuals, predictedScores=predictedScores))
+
+  # Select the cutoff
+  if(optimiseFor=="Both"){
+    rowIndex <- which(sensMat$YOUDENSINDEX == max(as.numeric(sensMat$YOUDENSINDEX)))
+  }else if(optimiseFor=="Ones"){
+    rowIndex <- which(sensMat$TPR == max(as.numeric(sensMat$TPR)))[1]
+  }else if(optimiseFor=="Zeros"){
+    rowIndex <- tail(which(sensMat$SPECIFICITY == max(as.numeric(sensMat$SPECIFICITY))), 1)
+  }
+
+  # what should the function return
+  if(!returnDiagnostics){
+    return(sensMat$CUTOFF[rowIndex])
+  } else {
+    output <- vector(length=6, mode="list")  # initialise diagnostics output
+    names(output) <- c("optimalCutoff", "sensitivityTable", "misclassificationError", "TPR", "FPR", "Specificity")  # give names
+    output$optimalCutoff <- sensMat$CUTOFF[rowIndex]
+    output$sensitivityTable <- sensMat
+    output$misclassificationError <- misClassError(actuals, predictedScores, threshold=sensMat$CUTOFF[rowIndex])
+    output$TPR <- getFprTpr(actuals, predictedScores, threshold=sensMat$CUTOFF[rowIndex])[[2]]
+    output$FPR <- getFprTpr(actuals, predictedScores, threshold=sensMat$CUTOFF[rowIndex])[[1]]
+    output$Specificity <- sensMat$SPECIFICITY[rowIndex]
+    return(output)
+  }
 }
