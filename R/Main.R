@@ -325,7 +325,7 @@ plotROC <- function(actuals, predictedScores, Show.labels=F, returnSensitivityMa
   # If Show.labels is TRUE, then display the labels.
   if(!Show.labels){
     print(bp + geom_ribbon(color="#3399FF", fill="#3399FF", aes(ymin=0, ymax=sensitivity)) +
-      labs(title="ROC Curve", x="1-Specificity", y="Sensitivity") +
+      labs(title="ROC Curve", x="1-Specificity (FPR)", y="Sensitivity (TPR)") +
       annotate("text", label=paste("AUROC:", round(AREAROC, 4)), x=0.55, y=0.35, colour="white", size=8) +
       theme(legend.position="none",
             plot.title=element_text(size=20, colour = "steelblue"),
@@ -333,7 +333,7 @@ plotROC <- function(actuals, predictedScores, Show.labels=F, returnSensitivityMa
             axis.title.y=element_text(size=15, colour = "steelblue")))
   } else {
     print(bp + geom_ribbon(color="#3399FF", fill="#3399FF", aes(ymin=0, ymax=sensitivity)) +
-      labs(title="ROC Curve", x="1-Specificity", y="Sensitivity") +
+      labs(title="ROC Curve", x="1-Specificity (FPR)", y="Sensitivity (TPR)") +
       annotate("text", label=paste("AUROC:", round(AREAROC, 4)), x=0.55, y=0.35, colour="white", size=8) +
       theme(legend.position="none",
             plot.title=element_text(size=20, colour = "steelblue"),
@@ -501,7 +501,7 @@ IV <- function(X, Y, valueOfGood=1){
 #' @export optimalCutoff
 #' @param actuals The actual binary flags for the response variable. It can take a numeric vector containing values of either 1 or 0, where 1 represents the 'Good' or 'Events' while 0 represents 'Bad' or 'Non-Events'.
 #' @param predictedScores The prediction probability scores for each observation. If your classification model gives the 1/0 predcitions, convert it to a numeric vector of 1's and 0's.
-#' @param optimiseFor The maximization criterion for which probability cutoff score needs to be optimised. Can take either of following values: "Ones" or "Zeros" or "Both" (default). If "Ones" is used, 'optimalCutoff' will be chosen to maximise detection of "One's". If 'Both' is specified, the probability cut-off that gives maximum Youden's Index is chosen.
+#' @param optimiseFor The maximization criterion for which probability cutoff score needs to be optimised. Can take either of following values: "Ones" or "Zeros" or "Both" or "misclasserror"(default). If "Ones" is used, 'optimalCutoff' will be chosen to maximise detection of "One's". If 'Both' is specified, the probability cut-off that gives maximum Youden's Index is chosen. If 'misclasserror' is specified, the probability cut-off that gives minimum mis-clasification error is chosen.
 #' @param returnDiagnostics If TRUE, would return additional diagnostics such as 'sensitivityTable', 'misclassificationError', 'TPR', 'FPR' and 'specificity' for the chosen cut-off.
 #' @return The optimal probability score cutoff that maximises a given criterion. If 'returnDiagnostics' is TRUE, then the following items are returned in a list:
 #' \itemize{
@@ -516,7 +516,7 @@ IV <- function(X, Y, valueOfGood=1){
 #' data('ActualsAndScores')
 #' optimalCutoff(actuals=ActualsAndScores$Actuals,
 #' predictedScores=ActualsAndScores$PredictedScores, optimiseFor="Both", returnDiagnostics=TRUE)
-optimalCutoff <- function(actuals, predictedScores, optimiseFor="Both", returnDiagnostics=FALSE){
+optimalCutoff <- function(actuals, predictedScores, optimiseFor="misclasserror", returnDiagnostics=FALSE){
   # initialise the diagnostics dataframe to study the effect of various cutoff values.
   sequence <- seq(max(predictedScores), min(predictedScores), -0.01)
   sensMat <- data.frame(CUTOFF=sequence, FPR= numeric(length(sequence)),TPR= numeric(length(sequence)), YOUDENSINDEX=numeric(length(sequence)))
@@ -532,6 +532,8 @@ optimalCutoff <- function(actuals, predictedScores, optimiseFor="Both", returnDi
     rowIndex <- which(sensMat$TPR == max(as.numeric(sensMat$TPR)))[1]
   }else if(optimiseFor=="Zeros"){
     rowIndex <- tail(which(sensMat$SPECIFICITY == max(as.numeric(sensMat$SPECIFICITY))), 1)
+  }else if(optimiseFor=="misclasserror"){
+    rowIndex <- tail(which(sensMat$MISCLASSERROR == min(as.numeric(sensMat$MISCLASSERROR))), 1)
   }
 
   # what should the function return

@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+
+<meta charset="utf-8">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="pandoc" />
+
+<meta name="author" content="Selva Prabhakaran" />
+
+<meta name="date" content="2015-08-27" />
+
+<title>InformationValue</title>
+
+
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css">
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; }
+code > span.dt { color: #902000; }
+code > span.dv { color: #40a070; }
+code > span.bn { color: #40a070; }
+code > span.fl { color: #40a070; }
+code > span.ch { color: #4070a0; }
+code > span.st { color: #4070a0; }
+code > span.co { color: #60a0b0; font-style: italic; }
+code > span.ot { color: #007020; }
+code > span.al { color: #ff0000; font-weight: bold; }
+code > span.fu { color: #06287e; }
+code > span.er { color: #ff0000; font-weight: bold; }
+</style>
+<style type="text/css">
+  pre:not([class]) {
+    background-color: white;
+  }
+</style>
+
+
+<link href="data:text/css,%23TOC%20%7B%0A%20%20position%3A%20fixed%3B%0A%20%20left%3A%200%3B%0A%20%20top%3A%2010px%3B%0A%20%20width%3A%20230px%3B%0A%20%20height%3A%20100%25%3B%0A%20%20overflow%3Aauto%3B%0A%7D%0A%0A%2F%2ARemove%20undrline%20in%20link%2A%2F%0A%23TOC%20a%7B%0A%20%20text%2Ddecoration%3A%20none%3B%0A%20%20%2F%2Acolor%3A%20%23428bca%3B%2A%2F%0A%20%20color%3A%20%2321759b%3B%0A%7D%0A%0A%2F%2ARemove%20Bullets%2A%2F%0A%23TOC%20li%20%7B%0A%20%20%20%20list%2Dstyle%3Anone%3B%0A%20%20%20%20background%2Dimage%3Anone%3B%0A%20%20%20%20background%2Drepeat%3Anone%3B%0A%20%20%20%20background%2Dposition%3A0%3B%0A%7D%0A%0Abody%20%7B%0A%20%20max%2Dwidth%3A%20800px%3B%0A%20%20margin%3A%20auto%3B%0A%20%20margin%2Dleft%3A290px%3B%0A%20%20line%2Dheight%3A%2020px%3B%0A%7D%0A%0A%2F%2ACenter%20the%20titles%2A%2F%0Ah1%2Etitle%2C%20h3%2Esubtitle%2C%20h4%2Eauthor%2C%20h4%2Edate%20%7B%0Atext%2Dalign%3A%20center%3B%0A%7D%0A%0A%2F%2AChange%20title%20colors%2A%2F%0Ah1%2C%20h2%2C%20h3%2C%20h4%20%7B%0Acolor%3A%20rgb%280%2C%2098%2C%20195%29%3B%0A%7D%0A%0A%2F%2AChange%20background%20color%20of%20code%20blocks%2A%2F%0Apre%2EsourceCode%2Er%20%7B%0A%20%20background%3A%20%23eee%3B%0A%20%20%2F%2Aoverflow%3A%20scroll%3B%2A%2F%0A%20%20%2F%2Aword%2Dbreak%3A%20break%2Dall%3B%2A%2F%0A%20%20word%2Dwrap%3A%20break%2Dword%3B%0A%7D%0A%0A%0Atable%20%7B%0A%20%20font%2Dfamily%3A%20%22Helvetica%20Neue%22%2C%20Helvetica%2C%20sans%2Dserif%3B%0A%20%20margin%3Aauto%3B%20%2F%2ACenter%20the%20table%2A%2F%0A%7D%0A%0A%0Acaption%20%7B%0A%20%20text%2Dalign%3A%20center%3B%0A%20%20color%3A%20silver%3B%0A%20%20text%2Dtransform%3A%20uppercase%3B%0A%20%20padding%3A%202px%3B%0A%7D%0A%0Athead%20%7B%0A%20%20background%3A%20SteelBlue%3B%0A%20%20color%3A%20white%3B%0A%7D%0A%0Ath%2C%0Atd%20%7B%0A%20%20padding%3A%202px%205px%3B%0A%7D%0A%0Atbody%20tr%3Anth%2Dchild%28even%29%20%7B%0A%20%20background%3A%20WhiteSmoke%3B%0A%7D%0A%0Atbody%20tr%20td%20%7B%0A%20%20font%2Dfamily%3A%20monospace%3B%0A%20%20text%2Dalign%3Acenter%3B%0A%7D%0A%2F%2A%0Atbody%20tr%20td%3Anth%2Dchild%282%29%20%7B%0A%20%20text%2Dalign%3Acenter%3B%0A%7D%0A%0Atbody%20tr%20td%3Anth%2Dchild%283%29%2C%0Atbody%20tr%20td%3Anth%2Dchild%284%29%20%7B%0A%20%20text%2Dalign%3A%20right%3B%0A%20%20font%2Dfamily%3A%20monospace%3B%0A%7D%0A%2A%2F%0Atfoot%20%7B%0A%20%20background%3A%20SeaGreen%3B%0A%20%20color%3A%20white%3B%0A%20%20text%2Dalign%3A%20right%3B%0A%7D%0A%0Atfoot%20tr%20th%3Alast%2Dchild%20%7B%0A%20%20font%2Dfamily%3A%20monospace%3B%0A%7D%0A" rel="stylesheet" type="text/css" />
+
+</head>
+
+<body>
+
+
+
+<div id="header">
+<h1 class="title">InformationValue</h1>
+<h3 class="subtitle"><em>Performance Analysis and Companion Functions that Aid Accuracy Improvement for Binary Classification Models</em></h3>
+<h4 class="author"><em>Selva Prabhakaran</em></h4>
+<h4 class="date"><em>2015-08-27</em></h4>
+</div>
+
+<div id="TOC">
+<ul>
+<li><a href="#definitions-lets-understand-the-terms">Definitions: Lets understand the terms</a></li>
+<li><a href="#diagnostics-of-predicted-probability-scores">1. Diagnostics of predicted probability scores</a><ul>
+<li><a href="#plotroc">1.1 <code>plotROC</code></a></li>
+<li><a href="#sensitivity">1.2. <code>sensitivity</code></a></li>
+<li><a href="#specificity">1.3. <code>specificity</code></a></li>
+<li><a href="#youdensindex">1.4. <code>youdensIndex</code></a></li>
+</ul></li>
+<li><a href="#performance-analysis">2. Performance Analysis</a><ul>
+<li><a href="#misclasserror">2.1. <code>misClassError</code></a></li>
+<li><a href="#kappacohen">2.2. <code>kappaCohen</code></a></li>
+<li><a href="#concordance">2.3. <code>Concordance</code></a></li>
+<li><a href="#somersd">2.4. <code>somersD</code></a></li>
+</ul></li>
+<li><a href="#functions-that-aid-accuracy-improvement">3. Functions that aid accuracy improvement</a><ul>
+<li><a href="#optimalcutoff">3.1. <code>optimalCutoff</code></a></li>
+<li><a href="#woe">3.2. <code>WOE</code></a></li>
+<li><a href="#woetable">3.3. <code>WOETable</code></a></li>
+<li><a href="#iv">3.4. <code>IV</code></a></li>
+</ul></li>
+</ul>
+</div>
+
+<p>The functions in <code>InformationValue</code> package are broadly divided in following categories:</p>
+<p><strong>1. Diagnostics of predicted probability scores</strong></p>
+<p><strong>2. Performance analysis</strong></p>
+<p><strong>3. Functions that aid accuracy improvement</strong></p>
+<p>First, lets define the meaning of the various terms used in this document.</p>
+<div id="definitions-lets-understand-the-terms" class="section level2">
+<h2>Definitions: Lets understand the terms</h2>
+<blockquote>
+<p><strong>Sensitivity</strong>, a.k.a <em>True Positive Rate</em> is the proportion of the events (ones) that a model predicted correctly as events, for a given prediction probability cut-off.</p>
+</blockquote>
+<blockquote>
+<p><strong>Specificity</strong>, a.k.a * 1 - False Positive Rate* is the proportion of the non-events (zeros) that a model predicted correctly as non-events, for a given prediction probability cut-off.</p>
+</blockquote>
+<blockquote>
+<p><strong>False Positive Rate</strong> is the proportion of non-events (zeros) that were predicted as events (ones)</p>
+</blockquote>
+<blockquote>
+<p><strong>False Negative Rate</strong> is the proportion of events (ones) that were predicted as non-events (zeros)</p>
+</blockquote>
+<blockquote>
+<p><strong>Mis-classification error</strong> is the proportion of observations (both events and non-event) that were not predicted correctly.</p>
+</blockquote>
+<blockquote>
+<p><strong>Concordance</strong> is the percentage of <em>all-possible-pairs-of-predicted Ones and Zeros</em> where the scores of actual ones are greater than the scores of actual zeros. It represents the predictive power of a binary classification model.</p>
+</blockquote>
+<blockquote>
+<p><strong>Weights of Evidence (WOE)</strong> provides a method of recoding the categorical <code>x</code> variable to continuous variables. For each category of a categorical variable, the <strong>WOE</strong> is calculated as: <span class="math">\[WOE = ln(\frac{perc.good. of. all. goods}{perc.bad. of. all. bads}) \]</span> In above formula, ‘goods’ is same as ‘ones’ and ‘bads’ is same as ‘zeros’.</p>
+</blockquote>
+<blockquote>
+<p><strong>Information Value (IV)</strong> is a measure of the predictive capability of a categorical <code>x</code> variable to accurately predict the goods and bads. For each category of <code>x</code>, information value is computed as: <span class="math">\[IV = (perc.Good. of. all. goods - perc.Bad. of. all. bads) * WOE \]</span> The total IV of a variable is the sum of IV’s of its categories. Here is what the values of IV mean according to Siddiqi (2006):</p>
+</blockquote>
+<ul>
+<li>Less than 0.02, then the predictor is not useful for modeling (separating the Goods from the Bads)</li>
+<li>0.02 to 0.1, then the predictor has only a weak relationship.</li>
+<li>0.1 to 0.3, then the predictor has a medium strength relationship.</li>
+<li>0.3 or higher, then the predictor has a strong relationship.</li>
+</ul>
+</div>
+<div id="diagnostics-of-predicted-probability-scores" class="section level2">
+<h2>1. Diagnostics of predicted probability scores</h2>
+<div id="plotroc" class="section level3">
+<h3>1.1 <code>plotROC</code></h3>
+<p>The plotROC uses the <code>ggplot2</code> framework to create the ROC curve and prints the <code>AUROC</code> inside. It comes with an option to display the change points of the prediction probability scores on the graph if you set the <code>Show.labels = T</code>.</p>
+<pre class="sourceCode r"><code class="sourceCode r">&gt;<span class="st"> </span><span class="kw">data</span>(<span class="st">'ActualsAndScores'</span>)
+&gt;<span class="st"> </span><span class="kw">plotROC</span>(<span class="dt">actuals=</span>ActualsAndScores$Actuals, <span class="dt">predictedScores=</span>ActualsAndScores$PredictedScores)</code></pre>
+<div class="figure">
+<img src="data:image/png;base64,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" />
+</div>
+<p>You can also get the sensitivity matrix used to make the plot by turning on <code>returnSensitivityMat = TRUE</code>.</p>
+<pre class="sourceCode r"><code class="sourceCode r">&gt;<span class="st"> </span>sensMat &lt;-<span class="st"> </span><span class="kw">plotROC</span>(<span class="dt">actuals =</span> ActualsAndScores$Actuals, <span class="dt">predictedScores =</span> ActualsAndScores$PredictedScores, 
++<span class="st">     </span><span class="dt">returnSensitivityMat =</span> <span class="ot">TRUE</span>)</code></pre>
+</div>
+<div id="sensitivity" class="section level3">
+<h3>1.2. <code>sensitivity</code></h3>
+<p>Sensitivity, also considered as the ‘True Positive Rate’ is the proportion of ‘Events’ (or ‘Ones’) correctly predicted by the model, for a given prediction probability cutoff score. The default cutoff score for the <code>specificity</code> function unless specified by the <code>threshold</code> argument is taken as <code>0.5</code>.</p>
+<pre class="sourceCode r"><code class="sourceCode r">&gt;<span class="st"> </span><span class="kw">sensitivity</span>(<span class="dt">actuals =</span> ActualsAndScores$Actuals, <span class="dt">predictedScores =</span> ActualsAndScores$PredictedScores)</code></pre>
+<p>[1] 1</p>
+<p>If the objective of your problem is to maximise the ability of your model to detect the ‘Events’ (or ‘Ones’), even at the cost of wrongly predicting the non-events (‘Zeros’) as an event (‘One’), then you could set the threshold as determined by the <code>optimalCutoff()</code> with <code>optimiseFor='Ones'</code></p>
+<pre class="sourceCode r"><code class="sourceCode r">&gt;<span class="st"> </span>max_sens_cutoff &lt;-<span class="st"> </span><span class="kw">optimalCutoff</span>(<span class="dt">actuals =</span> ActualsAndScores$Actuals, <span class="dt">predictedScores =</span> ActualsAndScores$PredictedScores, 
++<span class="st">     </span><span class="dt">optimiseFor =</span> <span class="st">&quot;Ones&quot;</span>)  <span class="co"># determine cutoff to maximise sensitivity.</span>
+&gt;<span class="st"> </span>
+<span class="er">&gt;</span><span class="st"> </span><span class="kw">print</span>(max_sens_cutoff)  <span class="co"># This would be cut-off score that achieved maximum sensitivity.</span></code></pre>
+<p>[1] 0.5531893</p>
+<pre class="sourceCode r"><code class="sourceCode r">&gt;<span class="st"> </span><span class="kw">sensitivity</span>(<span class="dt">actuals =</span> ActualsAndScores$Actuals, <span class="dt">predictedScores =</span> ActualsAndScores$PredictedScores, 
++<span class="st">     </span><span class="dt">threshold =</span> max_sens_cutoff)</code></pre>
+<p>[1] 1</p>
+</div>
+<div id="specificity" class="section level3">
+<h3>1.3. <code>specificity</code></h3>
+<p>For a given probability score cutoff (<code>threshold</code>), specificity computes what proportion of the total non-events (zeros) were predicted accurately. It can alo be computed as <code>1 - False Positive Rate</code>. If unless specified, the default <code>threshold</code> value is set as <code>0.5</code>, which means, the values of <code>ActualsAndScores$PredictedScores</code> above <code>0.5</code> is considered as events (Ones).</p>
+<pre class="sourceCode r"><code class="sourceCode r">&gt;<span class="st"> </span><span class="kw">specificity</span>(<span class="dt">actuals =</span> ActualsAndScores$Actuals, <span class="dt">predictedScores =</span> ActualsAndScores$PredictedScores)</code></pre>
+<p>[1] 0.1411765</p>
+<p>If you wish to know what proportion of non-events could be detected by lowering the <code>threshold</code>:</p>
+<pre class="sourceCode r"><code class="sourceCode r">&gt;<span class="st"> </span><span class="kw">specificity</span>(<span class="dt">actuals =</span> ActualsAndScores$Actuals, <span class="dt">predictedScores =</span> ActualsAndScores$PredictedScores, 
++<span class="st">     </span><span class="dt">threshold =</span> <span class="fl">0.35</span>)</code></pre>
+<p>[1] 0.01176471</p>
+</div>
+<div id="youdensindex" class="section level3">
+<h3>1.4. <code>youdensIndex</code></h3>
+<p>Youden’s J Index (Youden 1950), calculated as <span class="math">\[J = Sensitivity + Specificity - 1\]</span> represents the proportions of correctly predicted observations for both the events (Ones) and nonevents (Zeros). It is particularly useful if you want a single measure that accounts for both <em>false-positive</em> and <em>false-negative</em> rates</p>
+<pre class="sourceCode r"><code class="sourceCode r">&gt;<span class="st"> </span><span class="kw">youdensIndex</span>(<span class="dt">actuals =</span> ActualsAndScores$Actuals, <span class="dt">predictedScores =</span> ActualsAndScores$PredictedScores)</code></pre>
+<p>[1] 0.1411765</p>
+</div>
+</div>
+<div id="performance-analysis" class="section level2">
+<h2>2. Performance Analysis</h2>
+<div id="misclasserror" class="section level3">
+<h3>2.1. <code>misClassError</code></h3>
+<p>Mis-Classification Error is the proportion of all events that were incorrectly classified, for a given probability cutoff score.</p>
+<pre class="sourceCode r"><code class="sourceCode r">&gt;<span class="st"> </span><span class="kw">misClassError</span>(<span class="dt">actuals =</span> ActualsAndScores$Actuals, <span class="dt">predictedScores =</span> ActualsAndScores$PredictedScores, 
++<span class="st">     </span><span class="dt">threshold =</span> <span class="fl">0.5</span>)</code></pre>
+<p>[1] 0.4294</p>
+</div>
+<div id="kappacohen" class="section level3">
+<h3>2.2. <code>kappaCohen</code></h3>
+<p><a href="https://en.wikipedia.org/wiki/Cohen%27s_kappa"><code>Cohen's Kappa</code></a> is a robust accuracy measure that accounts for the percentage agreement that would occur by chance.</p>
+<pre class="sourceCode r"><code class="sourceCode r">&gt;<span class="st"> </span><span class="kw">kappaCohen</span>(<span class="dt">actuals =</span> ActualsAndScores$Actuals, <span class="dt">predictedScores =</span> ActualsAndScores$PredictedScores)</code></pre>
+<p>[1] 180.3407</p>
+</div>
+<div id="concordance" class="section level3">
+<h3>2.3. <code>Concordance</code></h3>
+<p>Concordance is the percentage of predicted probability scores where the scores of actual positive’s are greater than the scores of actual negative’s. It is calculated by taking into account the scores of all possible pairs of <em>Ones</em> and <em>Zeros</em>. If the concordance of a model is 100%, it means that, by tweaking the prediction probability cutoff, we could accurately predict all of the events and non-events.</p>
+<pre class="sourceCode r"><code class="sourceCode r">&gt;<span class="st"> </span><span class="kw">Concordance</span>(<span class="dt">actuals =</span> ActualsAndScores$Actuals, <span class="dt">predictedScores =</span> ActualsAndScores$PredictedScores)</code></pre>
+<p>$Concordance [1] 0.8730796</p>
+<p>$Discordance [1] 0.1269204</p>
+<p>$Tied [1] 0</p>
+<p>$Pairs [1] 7225</p>
+</div>
+<div id="somersd" class="section level3">
+<h3>2.4. <code>somersD</code></h3>
+<p><code>somersD</code> computes how many more concordant than discordant pairs exist divided by the total number of pairs. Larger the Somers D value, better model’s predictive ability. <span class="math">\[Somers D = \frac{Concordant Pairs - Discordant Pairs}{Total Pairs} \]</span></p>
+<pre class="sourceCode r"><code class="sourceCode r">&gt;<span class="st"> </span><span class="kw">somersD</span>(<span class="dt">actuals =</span> ActualsAndScores$Actuals, <span class="dt">predictedScores =</span> ActualsAndScores$PredictedScores)</code></pre>
+<p>[1] 0.7461592</p>
+</div>
+</div>
+<div id="functions-that-aid-accuracy-improvement" class="section level2">
+<h2>3. Functions that aid accuracy improvement</h2>
+<div id="optimalcutoff" class="section level3">
+<h3>3.1. <code>optimalCutoff</code></h3>
+<p><code>optimalCutoff</code> determines the optimal threshold for prediction probability score based on your specific problem objectives. By adjusting the argument <code>optimiseFor</code> as follows, you can find the optimal cutoff that: 1. <code>Ones</code>: maximises detection of events or ones 2. <code>Zeros</code>: maximises detection of non-events or zeros 3. <code>Both</code>: control both <em>false positive rate</em> and <em>false negative rate</em> by maximising the Youden’s J Index. 4. <code>misclasserror</code>: minimises misclassification error (default)</p>
+<pre class="sourceCode r"><code class="sourceCode r">&gt;<span class="st"> </span><span class="kw">optimalCutoff</span>(<span class="dt">actuals =</span> ActualsAndScores$Actuals, <span class="dt">predictedScores =</span> ActualsAndScores$PredictedScores)  <span class="co"># returns cutoff that gives minimum misclassification error.</span></code></pre>
+<p>[1] 0.6431893</p>
+<pre class="sourceCode r"><code class="sourceCode r">&gt;<span class="st"> </span><span class="kw">optimalCutoff</span>(<span class="dt">actuals =</span> ActualsAndScores$Actuals, <span class="dt">predictedScores =</span> ActualsAndScores$PredictedScores, 
++<span class="st">     </span><span class="dt">optimiseFor =</span> <span class="st">&quot;Both&quot;</span>)  <span class="co"># returns cutoff that gives maximum of Youden's J Index</span></code></pre>
+<p>[1] 0.6431893</p>
+<p>By setting the <code>returnDiagnostics=TRUE</code> you can get the <code>sensitivityTable</code> that shows the <code>FPR</code>, <code>TPR</code>, <code>YOUDENSINDEX</code>, <code>SPECIFICITY</code>, <code>MISCLASSERROR</code> for various values of cutoff.</p>
+<pre class="sourceCode r"><code class="sourceCode r">&gt;<span class="st"> </span>sens_table &lt;-<span class="st"> </span><span class="kw">optimalCutoff</span>(<span class="dt">actuals =</span> ActualsAndScores$Actuals, <span class="dt">predictedScores =</span> ActualsAndScores$PredictedScores, 
++<span class="st">     </span><span class="dt">optimiseFor =</span> <span class="st">&quot;Both&quot;</span>, <span class="dt">returnDiagnostics =</span> <span class="ot">TRUE</span>)$sensitivityTable</code></pre>
+</div>
+<div id="woe" class="section level3">
+<h3>3.2. <code>WOE</code></h3>
+<p>Computes the Weights Of Evidence (WOE) for each group of a given categorical X and binary response Y.</p>
+<pre class="sourceCode r"><code class="sourceCode r">&gt;<span class="st"> </span><span class="kw">WOE</span>(<span class="dt">X =</span> SimData$X.Cat, <span class="dt">Y =</span> SimData$Y.Binary)</code></pre>
+</div>
+<div id="woetable" class="section level3">
+<h3>3.3. <code>WOETable</code></h3>
+<p>Generates the WOE table showing the percentage goods, bads, WOE and IV for each category of <code>X</code>. WOE for a given category of <code>X</code> is computed as:</p>
+<p><span class="math">\[WOE = ln(\frac{perc.Good}{perc.Bad}) \]</span></p>
+<pre class="sourceCode r"><code class="sourceCode r">&gt;<span class="st"> </span><span class="kw">options</span>(<span class="dt">scipen =</span> <span class="dv">999</span>, <span class="dt">digits =</span> <span class="dv">2</span>)
+&gt;<span class="st"> </span><span class="kw">WOETable</span>(<span class="dt">X =</span> SimData$X.Cat, <span class="dt">Y =</span> SimData$Y.Binary)</code></pre>
+</div>
+<div id="iv" class="section level3">
+<h3>3.4. <code>IV</code></h3>
+<p>Compute the information value of a given categorical <code>X</code> (Factor) and binary <code>Y</code> (numeric) response. The information value of a category of <code>X</code> is calculated as: <span class="math">\[IV = (perc.Good - perc.Bad) * WOE \]</span> The <code>IV</code> of the categorical variables is the sum of information value of its individual categories.</p>
+<pre class="sourceCode r"><code class="sourceCode r">&gt;<span class="st"> </span><span class="kw">options</span>(<span class="dt">scipen =</span> <span class="dv">999</span>, <span class="dt">digits =</span> <span class="dv">4</span>)
+&gt;<span class="st"> </span><span class="kw">IV</span>(<span class="dt">X =</span> SimData$X.Cat, <span class="dt">Y =</span> SimData$Y.Binary)</code></pre>
+<p>[1] 0.162 attr(,“howgood”) [1] “Highly Predictive”</p>
+<blockquote>
+<p>“He who gives up code safety for code speed deserves neither.” For more information and examples, visit <a href="http://rstatistics.net">rstatistics.net</a></p>
+</blockquote>
+</div>
+</div>
+
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

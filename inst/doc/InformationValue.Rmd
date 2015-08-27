@@ -1,13 +1,19 @@
-# InformationValue
-Information Value CRAN Pkg: "Performance Analysis and Companion Functions that Aid Accuracy Improvement for Binary Classification Models"
-
-Author: "Selva Prabhakaran" <selva86@gmail.com>
-
-This is the latest development version of the "InformationValue" pkg. To install this version in your R, use:
-```{r, results='asis', fig.show='hold', fig.height=5, fig.width=5, prompt=TRUE, highlight=TRUE, collapse=TRUE, message=FALSE, warning=FALSE}
-devtools::install_github("selva86/InformationValue")
-```
-
+---
+title: "InformationValue"
+subtitle: "Performance Analysis and Companion Functions that Aid Accuracy Improvement for Binary Classification Models"
+author: "Selva Prabhakaran"
+date: "`r Sys.Date()`"
+output: 
+  rmarkdown::html_vignette:
+    fig_caption: yes
+    toc: true
+    css: custom.css
+vignette: >
+  %\VignetteIndexEntry{Vignette Title Subtitle}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+  %\SweaveUTF8
+---
 The functions in `InformationValue` package are broadly divided in following categories:
 
 **1. Diagnostics of predicted probability scores**
@@ -18,7 +24,7 @@ The functions in `InformationValue` package are broadly divided in following cat
 
 First, lets define the meaning of the various terms used in this document.
 
-## 0. Definitions
+## Definitions: Lets understand the terms
 > **Sensitivity**, a.k.a *True Positive Rate* is the proportion of the events (ones) that a model predicted correctly as events, for a given prediction probability cut-off. 
 
 > **Specificity**, a.k.a * 1 - False Positive Rate* is the proportion of the non-events (zeros) that a model predicted correctly as non-events, for a given prediction probability cut-off.
@@ -32,20 +38,17 @@ First, lets define the meaning of the various terms used in this document.
 > **Concordance** is the percentage of *all-possible-pairs-of-predicted Ones and Zeros* where the scores of actual ones are greater than the scores of actual zeros. It represents the predictive power of a binary classification model.
 
 > **Weights of Evidence (WOE)** provides a method of recoding the categorical `x` variable to continuous variables. For each category of a categorical variable, the **WOE** is calculated as:
-
-> WOE = ln(perc.good. of. all. goods/perc.bad. of. all. bads)
-
-> In above formula, 'goods' is same as 'ones' and 'bads' is same as 'zeros'.
+$$WOE = ln(\frac{perc.good. of. all. goods}{perc.bad. of. all. bads}) $$ 
+In above formula, 'goods' is same as 'ones' and 'bads' is same as 'zeros'.
 
 > **Information Value (IV)** is a measure of the predictive capability of a categorical `x` variable to accurately predict the goods and bads. For each category of `x`, information value is computed as:
+$$IV = (perc.Good. of. all. goods - perc.Bad. of. all. bads) * WOE $$ 
+The total IV of a variable is the sum of IV's of its categories. Here is what the values of IV mean according to Siddiqi (2006):
 
-> IV = (perc.Good. of. all. goods - perc.Bad. of. all. bads) * WOE  
-> The total IV of a variable is the sum of IV's of its categories. Here is what the values of IV mean according to Siddiqi (2006):
 * Less than 0.02, then the predictor is not useful for modeling (separating the Goods from the Bads)
 * 0.02 to 0.1, then the predictor has only a weak relationship.
 * 0.1 to 0.3, then the predictor has a medium strength relationship.
 * 0.3 or higher, then the predictor has a strong relationship.
-
 
 ## 1. Diagnostics of predicted probability scores
 ### 1.1 `plotROC`
@@ -67,11 +70,6 @@ You can also get the sensitivity matrix used to make the plot by turning on `ret
 sensMat <- plotROC(actuals=ActualsAndScores$Actuals,  predictedScores=ActualsAndScores$PredictedScores, returnSensitivityMat = TRUE)
 ```
     
-    
-```{r, echo=FALSE, results='hide', tab.cap="Top 10 rows of sensitivity matrix used to make the plot", prompt=TRUE, highlight=TRUE}
-options(scipen = 999, digits = 2)
-knitr::kable(head(sensMat, 50))
-```  
 
 ### 1.2. `sensitivity`
 Sensitivity, also considered as the 'True Positive Rate' is the proportion of 'Events' (or 'Ones') correctly predicted by the model, for a given prediction probability cutoff score. The default cutoff score for the `specificity` function unless specified by the `threshold` argument is taken as `0.5`.
@@ -166,10 +164,6 @@ By setting the `returnDiagnostics=TRUE` you can get the `sensitivityTable` that 
 sens_table <- optimalCutoff(actuals=ActualsAndScores$Actuals, predictedScores=ActualsAndScores$PredictedScores, optimiseFor="Both", returnDiagnostics=TRUE)$sensitivityTable
 ```
 
-```{r, echo=FALSE, results='asis', tab.cap="Top 10 rows of sensitivity matrix used to make the plot", prompt=TRUE, highlight=TRUE}
-knitr::kable(sens_table)
-```  
-
 ### 3.2. `WOE`
 Computes the Weights Of Evidence (WOE) for each group of a given categorical X and binary response Y.
 
@@ -177,31 +171,25 @@ Computes the Weights Of Evidence (WOE) for each group of a given categorical X a
 WOE(X=SimData$X.Cat, Y=SimData$Y.Binary)
 ```
 
-Displaying first 6 rows:
-```{r, echo=FALSE, results='asis', tab.cap="Top 10 rows of sensitivity matrix used to make the plot", prompt=TRUE, highlight=TRUE}
-knitr::kable(head(WOE(X=SimData$X.Cat, Y=SimData$Y.Binary), 6))
-```  
 
 ### 3.3. `WOETable`
 Generates the WOE table showing the percentage goods, bads, WOE and IV for each category of `X`. WOE for a given category of `X` is computed as:
 
-WOE = ln(percent.Good/percent.Bad) 
+$$WOE = ln(\frac{perc.Good}{perc.Bad}) $$ 
 ```{r, results='hide', prompt=TRUE, highlight=TRUE, collapse=TRUE, message=FALSE, warning=FALSE, tidy=TRUE, comment='#'}
 options(scipen = 999, digits = 2)
 WOETable(X=SimData$X.Cat, Y=SimData$Y.Binary)
 ```
 
-```{r, echo=FALSE, results='asis', tab.cap="Top 10 rows of sensitivity matrix used to make the plot", prompt=TRUE, highlight=TRUE}
-options(scipen = 999, digits = 2)
-knitr::kable(WOETable(X=SimData$X.Cat, Y=SimData$Y.Binary))
-```  
-
 
 ### 3.4. `IV`
 Compute the information value of a given categorical `X` (Factor) and binary `Y` (numeric) response. The information value of a category of `X` is calculated as:
-IV = (perc.Good - perc.Bad) * WOE
+$$IV = (perc.Good - perc.Bad) * WOE $$ 
 The `IV` of the categorical variables is the sum of information value of its individual categories.
 ```{r, results='asis', prompt=TRUE, highlight=TRUE, collapse=TRUE, message=FALSE, warning=FALSE, tidy=TRUE, comment='#'}
 options(scipen = 999, digits = 4)
 IV(X=SimData$X.Cat, Y=SimData$Y.Binary)
 ```
+
+> "He who gives up code safety for code speed deserves neither."
+For more information and examples, visit [rstatistics.net  ](http://rstatistics.net)
