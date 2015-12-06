@@ -127,6 +127,49 @@ specificity <- function(actuals, predictedScores, threshold=0.5){
 # Sample Run:
 # specificity(actuals=ActualsAndScores$Actuals, predictedScores=ActualsAndScores$PredictedScores)
 
+# precision
+#' @title precision
+#' @description Calculate the precision or positive predictive value for a given set of actuals and predicted probability scores.
+#' @details For a given given binary response actuals and predicted probability scores, precision is defined as the proportion of observations with the event out of the total positive predictions.
+#' @author Selva Prabhakaran \email{selva86@@gmail.com}
+#' @export precision
+#' @param actuals The actual binary flags for the response variable. It can take a numeric vector containing values of either 1 or 0, where 1 represents the 'Good' or 'Events' while 0 represents 'Bad' or 'Non-Events'.
+#' @param predictedScores The prediction probability scores for each observation. If your classification model gives the 1/0 predcitions, convert it to a numeric vector of 1's and 0's.
+#' @param threshold If predicted value is above the threshold, it will be considered as an event (1), else it will be a non-event (0). Defaults to 0.5.
+#' @return The precision or the positive predictive value.
+#' @examples
+#' data('ActualsAndScores')
+#' precision(actuals=ActualsAndScores$Actuals, predictedScores=ActualsAndScores$PredictedScores)
+precision <- function(actuals, predictedScores, threshold=0.5){
+  predicted_dir <- ifelse(predictedScores < threshold, 0, 1)
+  actual_dir <- actuals
+  no_with_and_predicted_to_have_event <- sum(actual_dir == 1 & predicted_dir == 1, na.rm=T)
+  no_predicted_event <- sum(predicted_dir == 1, na.rm=T)
+  return(no_with_and_predicted_to_have_event/no_predicted_event)
+}
+
+
+# Negative Predictive Value
+#' @title npv
+#' @description Calculate the negative predictive value for a given set of actuals and predicted probability scores.
+#' @details For a given given binary response actuals and predicted probability scores, negative predictive value is defined as the proportion of observations without the event out of the total negative predictions.
+#' @author Selva Prabhakaran \email{selva86@@gmail.com}
+#' @export npv
+#' @param actuals The actual binary flags for the response variable. It can take a numeric vector containing values of either 1 or 0, where 1 represents the 'Good' or 'Events' while 0 represents 'Bad' or 'Non-Events'.
+#' @param predictedScores The prediction probability scores for each observation. If your classification model gives the 1/0 predcitions, convert it to a numeric vector of 1's and 0's.
+#' @param threshold If predicted value is above the threshold, it will be considered as an event (1), else it will be a non-event (0). Defaults to 0.5.
+#' @return The negative predictive value for a given set of actuals and probability scores, with the specified cutoff threshold.
+#' @examples
+#' data('ActualsAndScores')
+#' npv(actuals=ActualsAndScores$Actuals, predictedScores=ActualsAndScores$PredictedScores)
+npv <- function(actuals, predictedScores, threshold=0.5){
+  predicted_dir <- ifelse(predictedScores < threshold, 0, 1)
+  actual_dir <- actuals
+  no_without_and_predicted_to_not_have_event <- sum(actual_dir != 1 & predicted_dir != 1, na.rm=T)
+  no_predicted_to_not_have_event <- sum(predicted_dir != 1, na.rm=T)
+  return(no_without_and_predicted_to_not_have_event/no_predicted_to_not_have_event)
+}
+
 
 # youdensIndex
 #' @title youdensIndex
@@ -330,7 +373,7 @@ plotROC <- function(actuals, predictedScores, Show.labels=F, returnSensitivityMa
       theme(legend.position="none",
             plot.title=element_text(size=20, colour = "steelblue"),
             axis.title.x=element_text(size=15, colour = "steelblue"),
-            axis.title.y=element_text(size=15, colour = "steelblue")))
+            axis.title.y=element_text(size=15, colour = "steelblue")) + coord_cartesian(xlim=c(0,1), ylim = c(0,1)))
   } else {
     print(bp + geom_ribbon(color="#3399FF", fill="#3399FF", aes(ymin=0, ymax=sensitivity)) +
       labs(title="ROC Curve", x="1-Specificity (FPR)", y="Sensitivity (TPR)") +
@@ -338,7 +381,7 @@ plotROC <- function(actuals, predictedScores, Show.labels=F, returnSensitivityMa
       theme(legend.position="none",
             plot.title=element_text(size=20, colour = "steelblue"),
             axis.title.x=element_text(size=15, colour = "steelblue"),
-            axis.title.y=element_text(size=15, colour = "steelblue")) +  geom_text(aes(size=0.1)))
+            axis.title.y=element_text(size=15, colour = "steelblue")) +  geom_text(aes(size=0.1)) + coord_cartesian(xlim=c(0,1), ylim = c(0,1)))
   }
 
   if(returnSensitivityMat){
@@ -427,7 +470,7 @@ WOETable <- function(X, Y, valueOfGood=1){
 
     # Load the number of goods and bads within each category.
     for(catg in levels(X)){  # catg => current category
-      woeTable[woeTable$CAT == catg, c(3, 2)] <- table(Y[X==catg])  # assign the good and bad count for current category.
+      try(woeTable[woeTable$CAT == catg, c(3, 2)] <- table(Y[X==catg]), silent=T)  # assign the good and bad count for current category.
       woeTable[woeTable$CAT == catg, "TOTAL"] <- sum(X==catg , na.rm=T)
     }
 
@@ -527,13 +570,13 @@ optimalCutoff <- function(actuals, predictedScores, optimiseFor="misclasserror",
 
   # Select the cutoff
   if(optimiseFor=="Both"){
-    rowIndex <- which(sensMat$YOUDENSINDEX == max(as.numeric(sensMat$YOUDENSINDEX)))
+    rowIndex <- which(sensMat$YOUDENSINDEX == max(as.numeric(sensMat$YOUDENSINDEX)))[1]  # choose the maximum cutoff
   }else if(optimiseFor=="Ones"){
-    rowIndex <- which(sensMat$TPR == max(as.numeric(sensMat$TPR)))[1]
+    rowIndex <- which(sensMat$TPR == max(as.numeric(sensMat$TPR)))[1]  # choose the maximum cutoff
   }else if(optimiseFor=="Zeros"){
-    rowIndex <- tail(which(sensMat$SPECIFICITY == max(as.numeric(sensMat$SPECIFICITY))), 1)
+    rowIndex <- tail(which(sensMat$SPECIFICITY == max(as.numeric(sensMat$SPECIFICITY))), 1)  # choose the minimum cutoff
   }else if(optimiseFor=="misclasserror"){
-    rowIndex <- tail(which(sensMat$MISCLASSERROR == min(as.numeric(sensMat$MISCLASSERROR))), 1)
+    rowIndex <- tail(which(sensMat$MISCLASSERROR == min(as.numeric(sensMat$MISCLASSERROR))), 1)  # choose the minimum cutoff
   }
 
   # what should the function return
@@ -551,3 +594,86 @@ optimalCutoff <- function(actuals, predictedScores, optimiseFor="misclasserror",
     return(output)
   }
 }
+
+### KS Statistic
+ks_table <- function(actuals, predictedScores){
+  # sort the actuals and predicred scores and create 10 groups.
+  dat <- data.frame(actuals, predictedScores)
+  dat <- dat[order(-dat$predictedScores), ]
+  rows_in_each_grp <- round(nrow(dat)/10)
+  first_9_grps <- rep(1:9, each=rows_in_each_grp) 
+  last_grp <- rep(10, nrow(dat)-length(first_9_grps))
+  grp_index <- c(first_9_grps, last_grp)
+  dat <- cbind(grp_index, dat)
+  
+  # init the ks_table and make the columns.
+  ks_tab <- data.frame(rank=1:10, total_pop=as.numeric(table(dat$grp_index)))
+  ks_tab[c("non_responders", "responders")] <- as.data.frame.matrix(table(dat$grp_index, dat$actuals))
+  perc_responders_tot <- sum(ks_tab$responders)/sum(ks_tab$total_pop)  # percentage of total responders.
+  ks_tab$expected_responders_by_random <- ks_tab$total_pop * perc_responders_tot  # expected responders if there was no model.
+  ks_tab$perc_responders <- ks_tab$responders/sum(ks_tab$responders)
+  ks_tab$perc_non_responders <- ks_tab$non_responders/sum(ks_tab$non_responders)
+  ks_tab$cum_perc_responders <- cumsum(ks_tab$perc_responders)
+  ks_tab$cum_perc_non_responders <- cumsum(ks_tab$perc_non_responders)
+  ks_tab$difference <- ks_tab$cum_perc_responders - ks_tab$cum_perc_non_responders
+  return(ks_tab)
+}
+
+# ks_table(a, p)
+
+# ks_stat
+#' @title ks_stat
+#' @description Compute the Kolmogorov-Smirnov statistic
+#' @details Compute the KS statistic for a given actuals and predicted scores for a binary response variable. KS statistic is calculated as the maximum difference between the cumulative true positive and cumulative false positive rate. 
+#' Set returnKSTable to TRUE to see the calculations from ks_table.
+#' @author Selva Prabhakaran \email{selva86@@gmail.com}
+#' @export ks_stat
+#' @param actuals The actual binary flags for the response variable. It can take a numeric vector containing values of either 1 or 0, where 1 represents the 'Good' or 'Events' while 0 represents 'Bad' or 'Non-Events'.
+#' @param predictedScores The prediction probability scores for each observation. If your classification model gives the 1/0 predcitions, convert it to a numeric vector of 1's and 0's.
+#' @param returnKSTable If set to TRUE, returns the KS table used to calculate the KS statistic instead. Defaults to FALSE.
+#' @return The KS statistic for a given actual values of a binary response variable and the respective prediction probability scores.
+#' @examples
+#' data('ActualsAndScores')
+#' ks_stat(actuals=ActualsAndScores$Actuals, predictedScores=ActualsAndScores$PredictedScores)
+ks_stat <- function(actuals, predictedScores, returnKSTable=FALSE){
+  # the max of ks_table$difference
+  ks_tab <- ks_table(actuals=actuals, predictedScores = predictedScores)
+  if(returnKSTable){
+    return(ks_tab)
+  }else{
+    return(round(max(ks_tab$difference), 4))  
+  }
+}
+
+# ks_stat(a, p, returnKSTable=T)
+
+# ks_plot
+#' @title ks_plot
+#' @description Plot the cumulative percentage of responders (ones) captured by the model
+#' @details Plot the cumulative percentage of responders (ones) captured by the model against the expected cumulative percentage of responders at random (i.e. had there been no model).
+#' The greater the distance between the random and model cumulatives, the better is the predictive ability of the model to effectively capture the responders (ones).
+#' @author Selva Prabhakaran \email{selva86@@gmail.com}
+#' @export ks_plot
+#' @param actuals The actual binary flags for the response variable. It can take a numeric vector containing values of either 1 or 0, where 1 represents the 'Good' or 'Events' while 0 represents 'Bad' or 'Non-Events'.
+#' @param predictedScores The prediction probability scores for each observation. If your classification model gives the 1/0 predcitions, convert it to a numeric vector of 1's and 0's.
+#' @return The KS plot
+#' @examples
+#' data('ActualsAndScores')
+#' ks_plot(actuals=ActualsAndScores$Actuals, predictedScores=ActualsAndScores$PredictedScores)
+
+ks_plot <- function(actuals, predictedScores){
+  rank <- 0:10
+  model <- c(0, ks_table(actuals = actuals, predictedScores = predictedScores)$cum_perc_responders)*100
+  random <- seq(0, 100, 10)
+  df <- data.frame(rank, random, model)
+  df_stack <- stack(df, c(random, model))
+  df_stack$rank <- rep(rank, 2)
+  df_stack$delta <- df_stack$values[12:22]-df_stack$values[1:11]
+  values <- df_stack$values
+  ind <- df_stack$ind
+  print(ggplot2::ggplot(df_stack, aes(x=rank, y=values, colour=ind, label=paste0(round(values, 2), "%"))) + geom_line(size=1.25) + labs(x="rank", y="Percentage Responders Captured", title="KS Plot") +
+          theme(plot.title = element_text(size=20, face="bold")) + geom_text(aes(y=values+4)))
+}
+
+# ks_plot(a, p)
+
