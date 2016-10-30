@@ -11,7 +11,7 @@
 # # Func to get IV summary for all vars in a df
 # # 
 # # plot IVs
-# 
+# # Func to compute WOE and IV for multiple variables at once.
 # 
 # # library(InformationValue)
 # inputData <- read.csv("http://rstatistics.net/wp-content/uploads/2015/09/adult.csv")
@@ -167,7 +167,29 @@
 # # ks_plot(a, p)
 
 
-
+# devtools::document()
 # R CMD build InformationValue
 # R CMD check InformationValue_1.1.2.tar.gz --as-cran
 # R CMD rd2pdf InformationValue
+
+# Fine classing, Coarse Classing, optimal refactor
+# Optimal refactor approach 1:
+# - Compute WoEs of all levels in the factor variable and club the closer ones together. 
+#   Use 1-D clustering as an option to optimally select the number of factors. This can be used only in case of 
+#   binary Y variable.
+#
+# Optimal refactor approach 2:
+# - Use rpart
+
+# Optimal refactor approach 3:
+# - Consider each level in the factor as a separate binary variable.
+# - 3.1: Do variable selection of eliminating by p-values. Do varClus {Hmisc} to cluster significant variables and combine leftover non-significant levels (variables) as one factor. 
+# - 3.2: Do mona {cluster} since all level variables are binary variables.
+
+# Approach 4: 
+# Use algo from credit scoring toolkit.
+
+# Fine classing approach 1:
+
+# Coarse classing approach 1: For numeric X
+# Implement the algorithm in this issue: http://r.789695.n4.nabble.com/R-Query-fine-classing-Logistic-Regression-td4683659.html

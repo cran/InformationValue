@@ -22,6 +22,7 @@ Concordance <- function (actuals, predictedScores){
   zeros <- na.omit(fitted[fitted$Actuals==0, ]) # Subsetzeros
   totalPairs <- nrow (ones) * nrow (zeros) # calculate total number of pairs to check
   conc <- sum (c (vapply (ones$PredictedScores, function(x) {((x > zeros$PredictedScores))}, FUN.VALUE=logical(nrow(zeros)))), na.rm=T)
+  disc <- sum(c(vapply(ones$PredictedScores, function(x) {((x < zeros$PredictedScores))}, FUN.VALUE = logical(nrow(zeros)))), na.rm = T)
   disc <- totalPairs - conc
 
   # Calc concordance, discordance and ties
@@ -674,6 +675,3 @@ ks_plot <- function(actuals, predictedScores){
   print(ggplot2::ggplot(df_stack, aes(x=rank, y=values, colour=ind, label=paste0(round(values, 2), "%"))) + geom_line(size=1.25) + labs(x="rank", y="Percentage Responders Captured", title="KS Plot") +
           theme(plot.title = element_text(size=20, face="bold")) + geom_text(aes(y=values+4)))
 }
-
-# ks_plot(a, p)
-
